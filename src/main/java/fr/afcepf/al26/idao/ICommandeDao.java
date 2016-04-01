@@ -9,11 +9,17 @@ import java.util.List;
  */
 public interface ICommandeDao {
     Commande create(Commande paramCommande);
+
     Commande getCommandeById(String paramId);
+
     Commande getCommandeByNumero(String paramNumero);
+
     Commande updateCommande(Commande paramCommande);
+
     void deteCommande(Commande paramCommande);
+
     List<Commande> getCommandeByDate(String date);
+
     List<Commande> getCommandeByVendeur(String paramVendeur);
 
 }
