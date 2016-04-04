@@ -24,35 +24,34 @@
         catalogue: "IDKDO Romantique",
         commande: {
             numero: "{{objectId()}}",
-            date: "{{date(new Date(2006,0,1), new Date(),'d.M.YY')}}",
+            date: "{{date(new Date(2006,0,1), new Date())}}",
             vendeur: "IDKDO"
         }
     }
 ]
 
 //produit #2
-    [
-    '{{repeat(500, 1000)}}',
-    {
-        _id: '{{objectId()}}',
-        name: function (tags) {
-            var produit = [
-                "Miffy Lampe grand modele",
-                "Peluche doudou lapin Miffy",
-                "Mobile lumineux nuit étoilé VTECH",
-                "Super livre enchanté"
-            ];
-            return produit[tags.integer(0, produit.length - 1)];
-        },
-        prix: "{{integer(200,500,'$0,0.00')}}",
-        quantite: "{{integer(1,10)}}",
-        catalogue: "Miffy Naissance",
-        commande: {
-            numero: "{{objectId()}}",
-            date: "{{date(new Date(2006,0,1), new Date(),'d.M.YY')}}",
-            vendeur: "IDKDO"
-        }
+    ['{{repeat(500, 1000)}}',
+{
+    _id: '{{objectId()}}',
+    name: function (tags) {
+        var produit = [
+            "Miffy Lampe grand modele",
+            "Peluche doudou lapin Miffy",
+            "Mobile lumineux nuit étoilé VTECH",
+            "Super livre enchanté"
+        ];
+        return produit[tags.integer(0, produit.length - 1)];
+    },
+    prix: "{{integer(200,500,'$0,0.00')}}",
+    quantite: "{{integer(1,10)}}",
+    catalogue: "Miffy Naissance",
+    commande: {
+        numero: "{{objectId()}}",
+        date: "{{date(new Date(2006,0,1), new Date(),'ISODateTimeTZ')}}",
+        vendeur: "IDKDO"
     }
+}
     ]
 
 
@@ -82,7 +81,7 @@
         catalogue: "IDKDO Accessoire Femme",
         commande: {
             numero: "{{objectId()}}",
-            date: "{{date(new Date(2006,0,1), new Date(),'d.M.YY')}}",
+            date: "{{date(new Date(2006,0,1), new Date(),'ISODateTimeTZ')}}",
             vendeur: "IDKDO"
         }
     }
@@ -109,7 +108,7 @@
         catalogue: "IDKDO Accessoire Homme",
         commande: {
             numero: "{{objectId()}}",
-            date: "{{date(new Date(2006,0,1), new Date(),'d.M.YY')}}",
+            date: "{{date(new Date(2006,0,1), new Date(),'ISODateTimeTZ')}}",
             vendeur: "IDKDO"
         }
     }
@@ -134,7 +133,7 @@
         catalogue: "Dinh Bijoux Femme",
         commande: {
             numero: "{{objectId()}}",
-            date: "{{date(new Date(2006,0,1), new Date(),'d.M.YY')}}",
+            date: "{{date(new Date(2006,0,1), new Date(),'ISODateTimeTZ')}}",
             vendeur: "Dinh Van"
         }
     }
@@ -158,7 +157,7 @@
         catalogue: "Dinh Bijoux Homme",
         commande: {
             numero: "{{objectId()}}",
-            date: "{{date(new Date(2006,0,1), new Date(),'d.M.YY')}}",
+            date: "{{date(new Date(2006,0,1), new Date(),'ISODateTimeTZ')}}",
             vendeur: "Dinh Van"
         }
     }
