@@ -76,22 +76,28 @@ public class MainTest {
         Document matchX = Document.parse("{$match: {'commande.vendeur':'IDKDO',catalogue:'" + catalogue + "',name:'" + article + "','commande.date':{'$gte':ISODate('2015-01-01')}}}");
         Document projectX = Document.parse("{$project:{name:1,quantite:1,'month':{$month:'$commande.date'}}}");
         Document groupX = Document.parse("{$group:{_id:{'produit':'$name','date':'$month'},'total':{$sum:'$quantite'}}}");
+        Document project2 = Document.parse("{$project:{'_id':0,nomProduit:'$_id.produit',mois:'$_id.date',total:1}}");
         List<Document> operationsX = new ArrayList<>();
+        final List<ValeursDto> valeursDtoList = new ArrayList<>();
+        ProduitDto produitDto = new ProduitDto(article);
         operationsX.add(matchX);
         operationsX.add(projectX);
         operationsX.add(groupX);
+        operationsX.add(project2);
         AggregateIterable<Document> iterableX = collection.aggregate(operationsX);
-
         iterableX.forEach(new Block<Document>() {
             @Override
             public void apply(Document paramDocument) {
                 log.info("A tester : "+paramDocument.toJson());
+                ValeursDto valeursDto = new ValeursDto(String.valueOf(paramDocument.getInteger("mois")),String.valueOf(paramDocument.getInteger("total")));
+                log.info(valeursDto.toString());
+                valeursDtoList.add(valeursDto);
             }
         });
 
-        /*
+
         produitDto.setValeursDtos(valeursDtoList);
         log.info("le final : "+produitDto.toString());
-        */
+
     }
 }
