@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import fr.afcepf.al26.dto.ProduitDto;
 import fr.afcepf.al26.dto.ValeursDto;
+import fr.afcepf.al26.idao.Generic;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 
@@ -30,7 +31,7 @@ public class MainTest {
         String catalogue = "IDKDO Romantique";
         String month = "2";
 
-        MongoCollection<Document> collection = db.getCollection(COLLECTION);
+        MongoCollection<Document> collection = db.getCollection(Generic.COLLECTION_PRODUIT);
 
         Document match = Document.parse("{$match: {'commande.vendeur':'IDKDO',catalogue:'" + catalogue + "','commande.date':{'$gte':ISODate('2015-01-01')}}}");
         Document project = Document.parse("{$project:{name:1,quantite:1,'month':{$month:'$commande.date'}}}");

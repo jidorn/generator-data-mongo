@@ -13,6 +13,7 @@ import org.bson.Document;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,24 +27,30 @@ public class RiaConnect {
     private MongoDatabase db;
     private MongoCollection<Document> collection;
 
-    @PostConstruct
-    public void init(){
+    public RiaConnect() {
         mongoClient = new MongoClient(Generic.HOST, Generic.PORT);
         db = mongoClient.getDatabase(Generic.DATABASE);
         log.info("Connect to database successfully to " + Generic.DATABASE);
         collection = db.getCollection(Generic.COLLECTION_PRODUIT);
     }
+
+    @PostConstruct
+    public void init(){
+        log.info("je passe par le post construct");
+    }
     @GET
+    @Produces("application/json")
     @Path("/quantiteparproduit")
     public ProduitDto getQuantityByProduct(
             @DefaultValue("IDKDO Romantique") @QueryParam("catalogue") String catalogue,
             @DefaultValue("1") @QueryParam("moisAFournir") String mois){
+        log.info("la collection : "+collection);
         ProduitDto produitDto = new ProduitDto(mois);
         final List<ValeursDto> valeursDtoList = new ArrayList<>();
         Document match = Document.parse("{$match: {'commande.vendeur':'IDKDO',catalogue:'" + catalogue + "','commande.date':{'$gte':ISODate('2015-01-01')}}}");
         Document project = Document.parse("{$project:{name:1,quantite:1,'month':{$month:'$commande.date'}}}");
         Document group = Document.parse("{$group:{_id:{'produit':'$name','date':'$month'},'total':{$sum:'$quantite'}}}");
-        Document project2 = Document.parse("{$project:{'_id':0,prod:'$_id.produit',mois:'$_id.date',total:1}}");
+        Document project2 = Document.parse("{$project:{'_id':0,nomProduit:'$_id.produit',mois:'$_id.date',total:1}}");
         Document match2 = Document.parse("{$match:{mois:"+mois+"}}");
         List<Document> operations = new ArrayList<>();
         operations.add(match);
