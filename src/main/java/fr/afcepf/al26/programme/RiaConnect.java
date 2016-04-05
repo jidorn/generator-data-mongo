@@ -1,4 +1,4 @@
-package fr.afcepf.al26.test;
+package fr.afcepf.al26.programme;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
@@ -7,55 +7,51 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import fr.afcepf.al26.dto.ProduitDto;
 import fr.afcepf.al26.dto.ValeursDto;
+import fr.afcepf.al26.idao.Generic;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 
+import javax.annotation.PostConstruct;
+import javax.ws.rs.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by alexandrequere on 1/04/2016.
+ * Created by alexandrequere on 5/04/2016.
  */
-public class MainTest {
-    private final static String HOST = "localhost";
-    private final static int PORT = 27017;
-    private final static String DATABASE = "idkdostat";
-    private final static String COLLECTION = "produits";
-    private static Logger log = Logger.getLogger(MainTest.class);
+@Path("/mongostat")
+public class RiaConnect {
+    private Logger log = Logger.getLogger(this.getClass());
+    private MongoClient mongoClient;
+    private MongoDatabase db;
+    private MongoCollection<Document> collection;
 
-    public static void main(String[] args) {
-        MongoClient mongoClient = new MongoClient(HOST, PORT);
-        MongoDatabase db = mongoClient.getDatabase(DATABASE);
-        log.info("Connect to database successfully to " + DATABASE);
-        String catalogue = "IDKDO Romantique";
-        String month = "2";
-
-        MongoCollection<Document> collection = db.getCollection(COLLECTION);
-
+    @PostConstruct
+    public void init(){
+        mongoClient = new MongoClient(Generic.HOST, Generic.PORT);
+        db = mongoClient.getDatabase(Generic.DATABASE);
+        log.info("Connect to database successfully to " + Generic.DATABASE);
+        collection = db.getCollection(Generic.COLLECTION_PRODUIT);
+    }
+    @GET
+    @Path("/quantiteparproduit")
+    public ProduitDto getQuantityByProduct(
+            @DefaultValue("IDKDO Romantique") @QueryParam("catalogue") String catalogue,
+            @DefaultValue("1") @QueryParam("moisAFournir") String mois){
+        ProduitDto produitDto = new ProduitDto(mois);
+        final List<ValeursDto> valeursDtoList = new ArrayList<>();
         Document match = Document.parse("{$match: {'commande.vendeur':'IDKDO',catalogue:'" + catalogue + "','commande.date':{'$gte':ISODate('2015-01-01')}}}");
         Document project = Document.parse("{$project:{name:1,quantite:1,'month':{$month:'$commande.date'}}}");
         Document group = Document.parse("{$group:{_id:{'produit':'$name','date':'$month'},'total':{$sum:'$quantite'}}}");
-        Document project2 = Document.parse("{$project:{'_id':0,nomProduit:'$_id.produit',mois:'$_id.date',total:1}}");
-        Document match2 = Document.parse("{$match:{mois:"+month+"}}");
-        final List<ValeursDto> valeursDtoList = new ArrayList<>();
+        Document project2 = Document.parse("{$project:{'_id':0,prod:'$_id.produit',mois:'$_id.date',total:1}}");
+        Document match2 = Document.parse("{$match:{mois:"+mois+"}}");
         List<Document> operations = new ArrayList<>();
-        ProduitDto produitDto = new ProduitDto(month);
         operations.add(match);
         operations.add(project);
         operations.add(group);
         operations.add(project2);
-        if (!month.isEmpty()){
-            operations.add(match2);
-        }
-        //List<Document> iterable = collection.aggregate(operations).into(new ArrayList<Document>());
+        operations.add(match2);
         AggregateIterable<Document> iterable = collection.aggregate(operations);
-/*
-        for (Document doc :
-                iterable) {
-            ValeursDto valeursDto = new ValeursDto(doc.getString("nomProduit"), String.valueOf(doc.getInteger("total")));
-            valeursDtoList.add(valeursDto);
-        }
-        */
         iterable.forEach(new Block<Document>() {
             @Override
             public void apply(Document paramDocument) {
@@ -66,6 +62,6 @@ public class MainTest {
             }
         });
         produitDto.setValeursDtos(valeursDtoList);
-        log.info("le final : "+produitDto.toString());
+        return produitDto;
     }
 }

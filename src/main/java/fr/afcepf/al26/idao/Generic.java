@@ -8,8 +8,8 @@ import org.apache.log4j.Logger;
 public interface Generic {
     String HOST = "localhost";
     int PORT = 27017;
-    String DATABASE = "idkdo";
-    String COLLECTION_PRODUIT = "produit";
+    String DATABASE = "idkdostat";
+    String COLLECTION_PRODUIT = "produits";
     String COLLECTION_STOCK = "stock";
     String PRODUIT_NAME = "nom_produit";
     String REFERENCE_PRODUIT = "ref_produit";
