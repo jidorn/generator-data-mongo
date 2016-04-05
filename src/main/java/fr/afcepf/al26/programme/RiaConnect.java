@@ -35,23 +35,24 @@ public class RiaConnect {
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         log.info("je passe par le post construct");
     }
+
     @GET
-    @Produces("application/json")
+    @Produces("application/json " + ";charset=utf-8")
     @Path("/quantiteparproduit")
     public ProduitDto getQuantityByProduct(
             @DefaultValue("IDKDO Romantique") @QueryParam("catalogue") String catalogue,
-            @DefaultValue("1") @QueryParam("moisAFournir") String mois){
-        log.info("la collection : "+collection);
+            @DefaultValue("1") @QueryParam("moisAFournir") String mois) {
+        log.info("la collection : " + collection);
         ProduitDto produitDto = new ProduitDto(mois);
         final List<ValeursDto> valeursDtoList = new ArrayList<>();
         Document match = Document.parse("{$match: {'commande.vendeur':'IDKDO',catalogue:'" + catalogue + "','commande.date':{'$gte':ISODate('2015-01-01')}}}");
         Document project = Document.parse("{$project:{name:1,quantite:1,'month':{$month:'$commande.date'}}}");
         Document group = Document.parse("{$group:{_id:{'produit':'$name','date':'$month'},'total':{$sum:'$quantite'}}}");
         Document project2 = Document.parse("{$project:{'_id':0,nomProduit:'$_id.produit',mois:'$_id.date',total:1}}");
-        Document match2 = Document.parse("{$match:{mois:"+mois+"}}");
+        Document match2 = Document.parse("{$match:{mois:" + mois + "}}");
         List<Document> operations = new ArrayList<>();
         operations.add(match);
         operations.add(project);
@@ -62,8 +63,37 @@ public class RiaConnect {
         iterable.forEach(new Block<Document>() {
             @Override
             public void apply(Document paramDocument) {
-                log.info("A tester : "+paramDocument.toJson());
-                ValeursDto valeursDto = new ValeursDto(paramDocument.getString("nomProduit"),String.valueOf(paramDocument.getInteger("total")));
+                log.info("A tester : " + paramDocument.toJson());
+                ValeursDto valeursDto = new ValeursDto(paramDocument.getString("nomProduit"), String.valueOf(paramDocument.getInteger("total")));
+                log.info(valeursDto.toString());
+                valeursDtoList.add(valeursDto);
+            }
+        });
+        produitDto.setValeursDtos(valeursDtoList);
+        return produitDto;
+    }
+
+    @GET
+    @Produces("application/json"+";charset=utf-8")
+    @Path("/evolutionpardate")
+    public ProduitDto getEvolutionProductByDate(
+            @DefaultValue("If you wait CD Album")@QueryParam("article") String article,
+            @DefaultValue("IDKDO Romantique") @QueryParam("catalogue") String catalogue) {
+        ProduitDto produitDto = new ProduitDto(article);
+        final List<ValeursDto> valeursDtoList = new ArrayList<>();
+        Document matchX = Document.parse("{$match: {'commande.vendeur':'IDKDO',catalogue:'" + catalogue + "',name:'" + article + "','commande.date':{'$gte':ISODate('2015-01-01')}}}");
+        Document projectX = Document.parse("{$project:{name:1,quantite:1,'month':{$month:'$commande.date'}}}");
+        Document groupX = Document.parse("{$group:{_id:{'produit':'$name','date':'$month'},'total':{$sum:'$quantite'}}}");
+        List<Document> operationsX = new ArrayList<>();
+        operationsX.add(matchX);
+        operationsX.add(projectX);
+        operationsX.add(groupX);
+        AggregateIterable<Document> iterableX = collection.aggregate(operationsX);
+        iterableX.forEach(new Block<Document>() {
+            @Override
+            public void apply(Document paramDocument) {
+                log.info("A tester : " + paramDocument.toJson());
+                ValeursDto valeursDto = new ValeursDto(paramDocument.getString("date"),String.valueOf(paramDocument.getInteger("total")));
                 log.info(valeursDto.toString());
                 valeursDtoList.add(valeursDto);
             }

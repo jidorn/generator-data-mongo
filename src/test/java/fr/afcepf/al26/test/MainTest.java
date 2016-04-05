@@ -33,6 +33,7 @@ public class MainTest {
 
         MongoCollection<Document> collection = db.getCollection(Generic.COLLECTION_PRODUIT);
 
+        /*
         Document match = Document.parse("{$match: {'commande.vendeur':'IDKDO',catalogue:'" + catalogue + "','commande.date':{'$gte':ISODate('2015-01-01')}}}");
         Document project = Document.parse("{$project:{name:1,quantite:1,'month':{$month:'$commande.date'}}}");
         Document group = Document.parse("{$group:{_id:{'produit':'$name','date':'$month'},'total':{$sum:'$quantite'}}}");
@@ -50,13 +51,13 @@ public class MainTest {
         }
         //List<Document> iterable = collection.aggregate(operations).into(new ArrayList<Document>());
         AggregateIterable<Document> iterable = collection.aggregate(operations);
-/*
+
         for (Document doc :
                 iterable) {
             ValeursDto valeursDto = new ValeursDto(doc.getString("nomProduit"), String.valueOf(doc.getInteger("total")));
             valeursDtoList.add(valeursDto);
         }
-        */
+
         iterable.forEach(new Block<Document>() {
             @Override
             public void apply(Document paramDocument) {
@@ -66,7 +67,31 @@ public class MainTest {
                 valeursDtoList.add(valeursDto);
             }
         });
+        */
+
+        // AFFICHER LES STATS D'UN PRODUIT :
+        log.info("AFFICHER LES STATS D'UN PRODUIT");
+        String article = "If you wait CD Album";
+
+        Document matchX = Document.parse("{$match: {'commande.vendeur':'IDKDO',catalogue:'" + catalogue + "',name:'" + article + "','commande.date':{'$gte':ISODate('2015-01-01')}}}");
+        Document projectX = Document.parse("{$project:{name:1,quantite:1,'month':{$month:'$commande.date'}}}");
+        Document groupX = Document.parse("{$group:{_id:{'produit':'$name','date':'$month'},'total':{$sum:'$quantite'}}}");
+        List<Document> operationsX = new ArrayList<>();
+        operationsX.add(matchX);
+        operationsX.add(projectX);
+        operationsX.add(groupX);
+        AggregateIterable<Document> iterableX = collection.aggregate(operationsX);
+
+        iterableX.forEach(new Block<Document>() {
+            @Override
+            public void apply(Document paramDocument) {
+                log.info("A tester : "+paramDocument.toJson());
+            }
+        });
+
+        /*
         produitDto.setValeursDtos(valeursDtoList);
         log.info("le final : "+produitDto.toString());
+        */
     }
 }
